@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Strands-like Game: Functiebeperking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+    h1 { margin-bottom: 10px; }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(8, 50px);
+      grid-template-rows: repeat(5, 50px);
+      gap: 5px;
+      user-select: none;
+    }
+    .cell {
+      width: 50px;
+      height: 50px;
+      background: white;
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .selected { background: #aaf; }
+    .found { background: #6c6; color: white; }
+    #words {
+      margin-top: 15px;
+    }
+    #words span {
+      margin: 5px;
+      padding: 3px 6px;
+      background: #eee;
+      border-radius: 4px;
+    }
+    #words .done {
+      background: #6c6;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Zoek de woorden (thema: functiebeperking)</h1>
+  <div id="grid"></div>
+  <div id="words"></div>
+  
+  <script>
+    const words = ["ROLSTOEL", "BLIND", "DOVEN", "AUTISME", "HULPMIDDEL"];
+    const rows = 5, cols = 8;
+
+    // Pre-filled grid (words already placed manually)
+    const gridLetters = [
+      "R","O","L","S","T","O","E","L",
+      "B","L","I","N","D","X","Y","Z",
+      "D","O","V","E","N","K","L","M",
+      "A","U","T","I","S","M","E","Q",
+      "H","U","L","P","M","I","D","D"
+    ];
+
+    const grid = document.getElementById("grid");
+    const wordList = document.getElementById("words");
+
+    // Create grid
+    gridLetters.forEach((letter, i) => {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.textContent = letter;
+      cell.dataset.index = i;
+      grid.appendChild(cell);
+    });
+
+    // Show words list
+    words.forEach(w => {
+      const span = document.createElement("span");
+      span.textContent = w;
+      span.id = "word-" + w;
+      wordList.appendChild(span);
+    });
+
+    let isDragging = false;
+    let selectedCells = [];
+
+    function clearSelection() {
+      document.querySele
