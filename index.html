@@ -2,46 +2,64 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Strands-like Game: Functiebeperking</title>
+  <title>Woordzoeker: Functiebeperking</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      font-family: 'Segoe UI', sans-serif;
+      background: #FFF9BD;
       display: flex;
       flex-direction: column;
       align-items: center;
       margin: 20px;
     }
-    h1 { margin-bottom: 10px; }
+    h1 {
+      margin-bottom: 10px;
+      color: #333;
+    }
     #grid {
       display: grid;
-      grid-template-columns: repeat(8, 50px);
-      grid-template-rows: repeat(5, 50px);
-      gap: 5px;
+      grid-template-columns: repeat(10, 45px);
+      grid-template-rows: repeat(10, 45px);
+      gap: 4px;
       user-select: none;
+      margin-top: 20px;
     }
     .cell {
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       background: white;
-      border: 1px solid #ccc;
+      border: 2px solid #e0d87c;
+      border-radius: 6px;
       display: flex;
       justify-content: center;
       align-items: center;
       font-weight: bold;
-      font-size: 20px;
+      font-size: 18px;
       cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
     }
-    .selected { background: #aaf; }
-    .found { background: #6c6; color: white; }
+    .cell:hover {
+      transform: scale(1.1);
+      border-color: #cbbf5b;
+    }
+    .selected {
+      background: #a4c6ff;
+    }
+    .found {
+      background: #6c6;
+      color: white;
+    }
     #words {
-      margin-top: 15px;
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: center;
     }
     #words span {
       margin: 5px;
-      padding: 3px 6px;
+      padding: 6px 10px;
       background: #eee;
-      border-radius: 4px;
+      border-radius: 6px;
+      display: inline-block;
     }
     #words .done {
       background: #6c6;
@@ -55,31 +73,38 @@
   <div id="words"></div>
   
   <script>
-    const words = ["ROLSTOEL", "BLIND", "DOVEN", "AUTISME", "HULPMIDDEL"];
-    const rows = 5, cols = 8;
+    const words = ["ADHD", "EPILEPSIE", "ROLSTOEL", "HULPMIDDEL"];
+    const rows = 10, cols = 10;
 
-    // Pre-filled grid (words already placed manually)
+    // 10x10 grid with words hidden (horizontal, vertical, diagonal)
     const gridLetters = [
-      "R","O","L","S","T","O","E","L",
-      "B","L","I","N","D","X","Y","Z",
-      "D","O","V","E","N","K","L","M",
-      "A","U","T","I","S","M","E","Q",
-      "H","U","L","P","M","I","D","D"
+      "R","O","L","S","T","O","E","L","A","X",
+      "A","P","A","B","C","D","E","F","G","H",
+      "B","I","D","J","K","L","M","N","O","P",
+      "C","L","H","Q","R","S","T","U","V","W",
+      "D","E","D","X","Y","Z","A","B","C","D",
+      "E","P","H","E","F","G","H","I","J","K",
+      "F","I","I","L","M","N","O","P","Q","R",
+      "G","E","D","S","T","U","V","W","X","Y",
+      "H","H","U","L","P","M","I","D","D","E",
+      "I","J","K","L","M","N","O","P","Q","L"
     ];
 
     const grid = document.getElementById("grid");
     const wordList = document.getElementById("words");
 
-    // Create grid
+    // Build grid
     gridLetters.forEach((letter, i) => {
       const cell = document.createElement("div");
       cell.className = "cell";
       cell.textContent = letter;
       cell.dataset.index = i;
+      cell.dataset.row = Math.floor(i / cols);
+      cell.dataset.col = i % cols;
       grid.appendChild(cell);
     });
 
-    // Show words list
+    // Show words
     words.forEach(w => {
       const span = document.createElement("span");
       span.textContent = w;
@@ -96,20 +121,21 @@
     }
 
     function checkWord() {
-      const word = selectedCells.map(c => c.textContent).join("");
-      if (words.includes(word)) {
+      const selectedWord = selectedCells.map(c => c.textContent).join("");
+      const reversedWord = selectedCells.map(c => c.textContent).reverse().join("");
+
+      if (words.includes(selectedWord) || words.includes(reversedWord)) {
         selectedCells.forEach(c => {
           c.classList.remove("selected");
           c.classList.add("found");
         });
-        document.getElementById("word-" + word).classList.add("done");
+        document.getElementById("word-" + (words.includes(selectedWord) ? selectedWord : reversedWord)).classList.add("done");
       } else {
-        // reset if wrong
         clearSelection();
       }
     }
 
-    // Event listeners
+    // Mouse events
     grid.addEventListener("mousedown", e => {
       if (!e.target.classList.contains("cell")) return;
       isDragging = true;
@@ -134,7 +160,7 @@
       }
     });
 
-    // Touch support for mobile
+    // Touch support
     grid.addEventListener("touchstart", e => {
       const target = document.elementFromPoint(
         e.touches[0].clientX,
@@ -167,6 +193,7 @@
       }
     });
 
+    // Escape clears selection
     document.addEventListener("keydown", e => {
       if (e.key === "Escape") clearSelection();
     });
