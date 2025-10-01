@@ -123,17 +123,76 @@
     function checkWord() {
       const selectedWord = selectedCells.map(c => c.textContent).join("");
       const reversedWord = selectedCells.map(c => c.textContent).reverse().join("");
-
-      if (words.includes(selectedWord) || words.includes(reversedWord)) {
+    
+      let foundWord = null;
+      if (words.includes(selectedWord)) foundWord = selectedWord;
+      else if (words.includes(reversedWord)) foundWord = reversedWord;
+    
+      if (foundWord) {
         selectedCells.forEach(c => {
           c.classList.remove("selected");
           c.classList.add("found");
         });
-        document.getElementById("word-" + (words.includes(selectedWord) ? selectedWord : reversedWord)).classList.add("done");
+        document.getElementById("word-" + foundWord).classList.add("done");
+        selectedCells = [];
+    
+        // Check if all words are found
+        const allDone = words.every(w => document.getElementById("word-" + w).classList.contains("done"));
+        if (allDone) showWinAnimation();
       } else {
         clearSelection();
       }
     }
+    
+    // Win animation
+    function showWinAnimation() {
+      // Create overlay
+      const overlay = document.createElement("div");
+      overlay.style.position = "fixed";
+      overlay.style.top = 0;
+      overlay.style.left = 0;
+      overlay.style.width = "100%";
+      overlay.style.height = "100%";
+      overlay.style.background = "rgba(0,0,0,0.6)";
+      overlay.style.display = "flex";
+      overlay.style.flexDirection = "column";
+      overlay.style.justifyContent = "center";
+      overlay.style.alignItems = "center";
+      overlay.style.zIndex = 9999;
+      overlay.innerHTML = `<h1 style="color:white; font-size:36px; text-align:center;">🎉 Gefeliciteerd! 🎉</h1>`;
+      document.body.appendChild(overlay);
+    
+      // Simple confetti animation
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement("div");
+        confetti.style.position = "fixed";
+        confetti.style.width = "10px";
+        confetti.style.height = "10px";
+        confetti.style.background = `hsl(${Math.random()*360}, 100%, 50%)`;
+        confetti.style.top = "-10px";
+        confetti.style.left = `${Math.random()*window.innerWidth}px`;
+        confetti.style.borderRadius = "50%";
+        confetti.style.opacity = Math.random();
+        overlay.appendChild(confetti);
+    
+        // Animate falling
+        const duration = 3000 + Math.random()*2000;
+        confetti.animate([
+          { transform: `translateY(0px) rotate(0deg)` },
+          { transform: `translateY(${window.innerHeight + 50}px) rotate(${Math.random()*720}deg)` }
+        ], {
+          duration: duration,
+          iterations: 1,
+          easing: 'ease-out'
+        });
+      }
+    
+      // Remove overlay after 4 seconds
+      setTimeout(() => {
+        overlay.remove();
+      }, 4000);
+    }
+
 
     // Mouse events
     grid.addEventListener("mousedown", e => {
